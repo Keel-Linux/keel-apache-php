@@ -1,0 +1,46 @@
+# Instance description of an Apache and PHP appliance, IPv6 first (docs/spec.md
+# in the keel repository). Copy to /etc/keel/instance.yaml and create the
+# secret file (mode 0600, owned by root) before the first boot:
+#
+#   /etc/keel/secrets/root_password
+#
+# There is no database password here, and no database: this layer is the web
+# half of a stack. LAMP and LAPP are this layer plus a database unit, and their
+# own descriptions declare secrets.db_password.
+version: 1
+
+instance:
+  hostname: apache-php
+  fqdn: apache-php.example.org
+
+network:
+  # LXC: the host owns eth0 and the address comes by SLAAC from the host's
+  # /64. Switch to method static with an address once a DNS record points at
+  # it, so the address the record names never moves.
+  managed_by: host
+  interfaces:
+    eth0:
+      ipv6:
+        method: auto
+
+tls:
+  acme:
+    # Left off in the example, because a certificate request needs a name that
+    # resolves. This layer does serve web pages, on 80 and 443 with the
+    # self-signed certificate core installs, so switching this on is the first
+    # thing a real deployment does: 15regen-sslcert replaces the certificate at
+    # first boot and Apache reads /etc/ssl/private/cert.pem.
+    enabled: false
+
+secrets:
+  root_password:
+    file: /etc/keel/secrets/root_password
+
+hub:
+  api_key: skip
+
+security:
+  alerts: skip
+  updates_at_first_boot: skip
+
+first_login_wizard: false

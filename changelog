@@ -1,0 +1,31 @@
+turnkey-apache-php-19.0 (1) turnkey; urgency=low
+
+  * Initial release of the Apache and PHP stack layer for Keel, compatible
+    with TurnKey Linux appliances. Built as a layer on core:
+    bt-layer apache-php --parent core.
+
+  * What LAMP and LAPP have in common, built once: Apache 2 with mod_php,
+    php-cli, mod_security2, mod_evasive, mod_perl2, the Webmin modules for
+    Apache and for php.ini, Adminer with the syntax highlighter it
+    recommends, Composer, and the web control panel assets. From the shared
+    tree: the apache, php, adminer, composer and tkl-webcp overlays, and the
+    conf scripts apache-vhost, apache-headers, apache-security, apache-ssl,
+    php, adminer, adminer-apache, apache-cgi and tkl-webcp.
+
+  * The default site serves /var/www on 80 and on 443, which is what both
+    upstream recipes replace Debian's default with. mod_cgi is enabled and
+    serve-cgi-bin.conf points at /var/www/cgi-bin.
+
+  * Decision 0013 is why this layer can exist: a database is a component
+    carried by a fab unit, not a parent layer, so LAMP is this layer plus the
+    mariadb unit and LAPP is this layer plus the postgresql unit. Before
+    that, each stack had to be a child of its own database and the web half
+    was built twice.
+
+  * What is deliberately not here, because it belongs to one stack and not to
+    both: the database and its unit, the Adminer configuration that names one
+    (conf/adminer-mysql, conf/adminer-pgsql), the confconsole overlay per
+    stack, the landing page, and each stack's own extras (php-xdebug,
+    php-pear and the Python and Perl database drivers).
+
+ -- Keel Linux maintainers <admin@keellinux.org>  Sun, 27 Sep 2026 12:00:00 +0000
