@@ -53,7 +53,6 @@ jobs:
       # building the console's replication modes at all. The count is the
       # number of names, so Galera's three later is another name here and
       # nothing in the workflow or the test assumes two.
-      roles: primary replica
       timeout: 60
   package:
     # Only on a pull request. require-changelog compares the two commits of
