@@ -1,0 +1,30 @@
+#include <turnkey/base>
+
+/* The web server, PHP as an Apache module and on the command line. Both
+   upstream stacks name all three. */
+apache2
+libapache2-mod-php
+php-cli
+
+/* The two Apache modules both stacks harden with, enabled by
+   common/conf/apache-security. */
+libapache2-mod-security2
+libapache2-mod-evasive
+
+/* Perl inside Apache: both upstream recipes ask for it, each adding its own
+   DBD driver on top (libdbd-mysql-perl in LAMP, libdbd-pg-perl in LAPP). */
+libapache2-mod-perl2
+
+/* The panel core carries, with the two modules a web stack adds to it. */
+webmin-apache
+webmin-phpini
+
+/* Adminer and the syntax highlighter it recommends. Both stacks ship it; what
+   differs is which database it is pointed at, which is conf/adminer-mysql or
+   conf/adminer-pgsql and stays with the stack. */
+adminer
+libjs-jush
+
+/* The PHP dependency manager, which both recipes include through
+   common/mk/turnkey/composer.mk and their own plans. */
+composer

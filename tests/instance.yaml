@@ -1,0 +1,44 @@
+# Instance description of the boot test (format: docs/spec.md of the keel
+# repository). IPv6 first, address from the bridge, no certificate request.
+# The root password is a file the test writes into the rootfs before booting,
+# so the first boot is headless and nothing is typed at a console.
+#
+# There is no database password here: this layer serves web pages and owns no
+# database account. The stack built on it declares one, because the database
+# arrives with it as a unit (decision 0013).
+#
+# This is the throwaway container the gate boots. The description an
+# operator would start from is keel/instance.example.yaml.
+version: 1
+
+instance:
+  hostname: apache-php
+  fqdn: apache-php.example.org
+
+network:
+  # The container's address comes from the bridge, so the host owns the
+  # interface configuration and 01ipconfig writes nothing.
+  managed_by: host
+  interfaces:
+    eth0:
+      ipv6:
+        method: auto
+
+tls:
+  acme:
+    enabled: false
+
+secrets:
+  root_password:
+    file: /etc/keel/secrets/root_password
+
+hub:
+  api_key: skip
+
+security:
+  alerts: skip
+  # A first boot input, not machine state: 95secupdates installs the
+  # pending security updates once. diff does not compare it.
+  updates_at_first_boot: skip
+
+first_login_wizard: false

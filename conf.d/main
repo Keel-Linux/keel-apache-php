@@ -1,0 +1,58 @@
+#!/bin/bash -ex
+# What LAMP and LAPP both do in their own conf.d/main, minus the parts that
+# belong to one of them (LAMP starts the database once so InnoDB writes its
+# data files, and enables its remove-upgrade-header conf).
+#
+# The conf scripts of the shared tree have already run: apache-vhost,
+# apache-headers, apache-security, apache-ssl, php, adminer, adminer-apache
+# and tkl-webcp, in that order, and the unit conf scripts after them, of which
+# this layer has none.
+
+# CGI. common/conf/apache-cgi has already pointed serve-cgi-bin.conf at
+# /var/www/cgi-bin, which is where the overlay puts test.cgi; the module still
+# has to be enabled, which is what both stacks do here.
+a2enmod cgi
+
+# The web control panel icon set both stacks keep. The overlay of the shared
+# tree ships five icons and both recipes delete the one they do not link to,
+# with the same four names.
+cd /var/www/images
+find . -type f ! -name "adminer.png" ! -name "shell.png" ! -name "tab.png" \
+    ! -name "webmin.png" -delete
+
+# Apache must answer on both families. The site config of the overlay names no
+# address, so Apache listens on every one, and ports.conf is what says which
+# ports: 80 and 443 from the package, 12322 appended by
+# common/conf/adminer-apache. A missing Listen line here is a layer that
+# serves nothing, which the boot test would find on the running machine and
+# this finds at build time.
+grep -qE '^\s*Listen 80$' /etc/apache2/ports.conf
+grep -qE '^\s*Listen 443$' /etc/apache2/ports.conf
+grep -qx 'Listen 12322' /etc/apache2/ports.conf
+
+# The modules the stack is built on, as enabled rather than as planned: a
+# module that is installed but not enabled is a layer that does not do what it
+# says. php, ssl, headers and cgi are the four the checks above and the
+# shared conf scripts enable; security2 and evasive are enabled "|| true" by
+# common/conf/apache-security, so they are checked here rather than assumed.
+for module in cgi headers ssl security2 evasive; do
+    a2query -m "$module" >/dev/null
+done
+# mod_php is enabled by its own package under the versioned name Debian gives
+# it (php8.4 on Debian 13), so the check is on the enabled module rather than
+# on a name written here.
+compgen -G '/etc/apache2/mods-enabled/php*.load' >/dev/null
+
+# The default site is the one the overlay ships, serving /var/www, and it is
+# enabled. Debian enables 000-default by name, and the overlay replaces the
+# file, so this is a check that the replacement is the file in force.
+a2query -s 000-default >/dev/null
+grep -q 'DocumentRoot /var/www/' /etc/apache2/sites-available/000-default.conf
+
+# Adminer is behind Apache on its own port, which common/conf/adminer-apache
+# enabled as the site "adminer".
+a2query -s adminer >/dev/null
+
+# PHP answers on the command line, which is what php-cli is for and what the
+# opcache settings of common/conf/php were written against.
+php -r 'exit(PHP_VERSION_ID > 0 ? 0 : 1);'
