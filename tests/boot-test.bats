@@ -394,6 +394,17 @@ DEF
     [[ $output == *"came back as source"* ]]
 }
 
+@test "adminer_verdict: its own page passes, anything else on that port does not" {
+    run bt_adminer_verdict '<html><title>Login - Adminer</title></html>'
+    [ "$status" -eq 0 ]
+    [[ $output == *"adminer answered with its own page on port 12322"* ]]
+    run bt_adminer_verdict '<html><title>It works</title></html>'
+    [ "$status" -eq 1 ]
+    [[ $output == *"has no 'Adminer' in it"* ]]
+    run bt_adminer_verdict
+    [ "$status" -eq 1 ]
+}
+
 @test "cgi_verdict: the script's output passes, its source does not" {
     run bt_cgi_verdict "<html><head><title>CGI Test</title></head><body><h1>Hello, world.</h1></body></html>"
     [ "$status" -eq 0 ]

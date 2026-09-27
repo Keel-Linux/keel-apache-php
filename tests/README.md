@@ -17,7 +17,8 @@ published layer chain into an LXC rootfs, boots it headless from
 - checks that the body carries the PHP report and not the page's source, so a
   stack that serves PHP as text fails rather than passes;
 - asks for `/cgi-bin/test.cgi` and checks the script's output, not its source;
-- asks Adminer on 12322;
+- asks Adminer on 12322, over TLS, because that vhost is TLS only, and checks
+  that the page is Adminer's own;
 - checks that `webmin-apache` is installed and that Webmin answers on 12321;
 - runs `keel diff` against the description that was declared.
 

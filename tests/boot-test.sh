@@ -155,16 +155,18 @@ code=$(http_code "http://[$addr]:$BT_HTTP_PORT$BT_CGI_PROBE_PATH")
 bt_http_verdict "$code" "$BT_HTTP_PORT" "the CGI script"
 bt_cgi_verdict "$(http_body "http://[$addr]:$BT_HTTP_PORT$BT_CGI_PROBE_PATH")"
 
-# 8b. Adminer answers on its own port. It is part of both stacks, so it is
-#     part of this layer; which database it is pointed at is not, and is set by
-#     the stack (common/conf/adminer-mysql, common/conf/adminer-pgsql).
+# 8b. Adminer answers on its own port, over TLS: the vhost of the shared tree
+#     opens with "SSLEngine on", so a plain HTTP request there is answered 400
+#     by Apache rather than by Adminer, which is what the first run of this
+#     test found. The page is checked too, so a 200 from anything else fails.
 adminer_answers() {
-    code=$(http_code "http://[$addr]:$BT_ADMINER_PORT/")
+    code=$(http_code "https://[$addr]:$BT_ADMINER_PORT/")
     [ "$code" = "$BT_HTTP_OK" ]
 }
 bt_wait_for "$BT_TIMEOUT" "$BT_INTERVAL" \
-    "adminer on http://[$addr]:$BT_ADMINER_PORT/" adminer_answers
+    "adminer on https://[$addr]:$BT_ADMINER_PORT/" adminer_answers
 bt_http_verdict "$code" "$BT_ADMINER_PORT" "adminer"
+bt_adminer_verdict "$(http_body "https://[$addr]:$BT_ADMINER_PORT/")"
 
 # 8c. The panel core carries, with the module this layer adds to it.
 status=$(lxc attach -- dpkg-query -W -f '${Status}' "$BT_WEBMIN_MODULE" 2>/dev/null || true)

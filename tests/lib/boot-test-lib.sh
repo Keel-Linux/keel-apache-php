@@ -35,7 +35,13 @@ BT_WEBMIN_MODULE=webmin-apache
 # round without anybody noticing.
 BT_HTTP_PORT=80
 BT_HTTPS_PORT=443
+# Adminer answers on its own port and only over TLS: the vhost
+# common/overlays/adminer ships opens with "SSLEngine on", so a plain HTTP
+# request there is answered 400 by Apache and not by Adminer. Measured on the
+# booted layer, which is why the mark below is checked as well as the code: a
+# 400 from the wrong scheme and a 200 from something else must both fail.
 BT_ADMINER_PORT=12322
+BT_ADMINER_MARK="Adminer"
 # The two pages the overlay ships, and what each one proves. phpinfo.php is
 # one line of PHP: if the response carries the report, mod_php ran it, and if
 # it carries the source instead then Apache served PHP as text, which is the
@@ -428,6 +434,21 @@ bt_php_verdict() {
             ;;
     esac
     echo "boot-test: the PHP page has no '$BT_PHP_PROBE_MARK' in it: PHP did not execute" >&2
+    return 1
+}
+
+bt_adminer_verdict() {
+    # bt_adminer_verdict BODY: Adminer is part of both stacks, so it is part of
+    # this layer; which database it is pointed at is not, and is set by the
+    # stack (common/conf/adminer-mysql, common/conf/adminer-pgsql). So the
+    # verdict is that the page is Adminer's, not that it can reach a server.
+    case "${1-}" in
+        *"$BT_ADMINER_MARK"*)
+            echo "boot-test: adminer answered with its own page on port $BT_ADMINER_PORT"
+            return 0
+            ;;
+    esac
+    echo "boot-test: the page on port $BT_ADMINER_PORT has no '$BT_ADMINER_MARK' in it" >&2
     return 1
 }
 

@@ -43,7 +43,10 @@ What is in it
 Webmin comes from ``core`` and answers on 12321; this layer adds
 ``webmin-apache`` and ``webmin-phpini``, the two modules that put a web stack
 in it. Adminer answers on 12322, which ``common/conf/adminer-apache`` puts
-behind Apache.
+behind Apache, and only over TLS: the vhost of the shared tree opens with
+``SSLEngine on``, so a plain HTTP request on that port is answered 400 by
+Apache and not by Adminer. The boot test found that on its first run and now
+asks for ``https://``.
 
 What it deliberately leaves out
 -------------------------------
@@ -90,5 +93,6 @@ bats suite under kcov and gates the shell this layer writes, and
 ``tests/boot-test.sh`` assembles the layer, boots it headless in LXC, and over
 the container's global IPv6 address proves that Apache answers on 80 and 443,
 that PHP executes rather than being served as source, that the CGI handler
-runs, that Adminer answers on 12322, that ``webmin-apache`` is installed and
-Webmin answers on 12321, and that ``keel diff`` reports no drift.
+runs, that Adminer answers on 12322 over TLS with its own page, that
+``webmin-apache`` is installed and Webmin answers on 12321, and that
+``keel diff`` reports no drift.

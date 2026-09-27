@@ -8,17 +8,17 @@ acceptance test of a recipe, docs/org-plan.md section 1).
 
 | File | Test | Lines | Note |
 | --- | --- | --- | --- |
-| tests/lib/boot-test-lib.sh | tests/boot-test.bats (44 tests) | 100 percent (171/171) under kcov | argument parsing, address discovery, deadlines, the container marks, the spec and secret paths, and the HTTP, PHP, CGI, Webmin, module and diff verdicts |
+| tests/lib/boot-test-lib.sh | tests/boot-test.bats (45 tests) | 100 percent (177/177) under kcov | argument parsing, address discovery, deadlines, the container marks, the spec and secret paths, and the HTTP, PHP, CGI, Adminer, Webmin, module and diff verdicts |
 | conf.d/main | the build | integration only | build time script, 0004 pragmatic limits; every line of it is a check on what the shared conf scripts left behind, so a failed build names the thing that is wrong |
 | tests/boot-test.sh | itself | integration only | the thin main of the acceptance test: keel and LXC as root |
 
-Total: **100 percent (171/171)**, 44 bats tests. `tests/coverage.sh` fails
+Total: **100 percent (177/177)**, 45 bats tests. `tests/coverage.sh` fails
 below `COVERAGE_THRESHOLD`, which the workflow sets to 100, the measured
 number. It is only ever raised (decision 0006).
 
     $ COVERAGE_THRESHOLD=100 tests/coverage.sh
     kcov line coverage (threshold 100 percent):
-     100.00  171/171  boot-test-lib.sh
+     100.00  177/177  boot-test-lib.sh
 
 This layer ships no first boot hook and no library of its own, which is why one
 file is measured: it installs and configures software and leaves the
@@ -30,7 +30,7 @@ the boot test.
 ## The fourth copy of the boot test library, and what to do about it
 
 `tests/lib/boot-test-lib.sh` now exists in keel-core, keel-nodebb,
-keel-mariadb, keel-postgresql and here. About 130 of its 171 lines are
+keel-mariadb, keel-postgresql and here. About 130 of its 177 lines are
 identical in all five; what differs is the verdicts of the appliance. The
 STATUS entry of 2026-09-27 said the shared half should move into
 `keel-linux/.github`, which already holds the reusable workflows and
