@@ -1,3 +1,9 @@
+.. warning::
+
+   **Archived (2026-10-07).** Keel retired Apache: web appliances use nginx
+   with php-fpm (LEMP), see Keel-Linux/keel-nginx-php-fastcgi and Keel-Linux/keel-web.
+   This repository is kept read-only for reference.
+
 keel-apache-php
 ===============
 
